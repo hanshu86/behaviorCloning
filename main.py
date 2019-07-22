@@ -4,7 +4,7 @@ import numpy as np
 from keras.models import Sequential
 from keras.layers import Flatten, Dense
 from keras.layers import Lambda
-from keras.layers import Conv2D
+from keras.layers import Conv2D, Dropout
 from keras.layers.pooling import MaxPooling2D
 
 images = []
@@ -53,11 +53,12 @@ model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.30))
 model.add(Flatten())
 model.add(Dense(120))
-model.add(Dense(184))
+model.add(Dropout(0.30))
+model.add(Dense(84))
 model.add(Dense(1))
 
 model.compile(loss='mse', optimizer = 'adam')
-model.fit(X_train, Y_train, validation_split = 0.2, shuffle = True, nb_epoch = 7)
+model.fit(X_train, Y_train, validation_split = 0.2, shuffle = True, nb_epoch = 5)
 
 model.save('model.h5')
 
