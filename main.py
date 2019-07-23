@@ -3,36 +3,63 @@ from scipy import ndimage
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Flatten, Dense
+from keras.layers import Lambda
+from keras.layers import Conv2D, Dropout, Cropping2D
+from keras.layers.pooling import MaxPooling2D
 
-lines = []
-# myTrainingData is uploaded from my local machine
-# so need to change the path
-with open('myTrainingData/driving_log.csv') as csvfile:
-    reader = csv.reader(csvfile)
-    for line in reader:
-        lines.append(line)
-        
 images = []
 measurements = []
-for line in lines:
-    path = line[0] # only centre image for now
-    fileName = path.split('/')[-1]
-    currentPath = 'myTrainingData/IMG/'+ fileName
-    image = ndimage.imread(currentPath)
-    measurement = float(line[3])
-    images.append(image)
-    measurements.append(measurement)
-    
+
+# myTrainingData is uploaded from my local machine
+# so need to change the path
+def get_training_data_label_pairs(directory):
+    lines = []
+    log_file_path = directory + '/driving_log.csv'
+    with open(log_file_path) as csvfile:
+        reader = csv.reader(csvfile)
+        for line in reader:
+            lines.append(line)
+    for line in lines:
+        path = line[0] # only centre image for now
+        if (len(path) < 8):
+            continue
+        fileName = path.split('/')[-1]
+        imagePath = directory + '/IMG/'
+        currentPath = imagePath + fileName
+        image = ndimage.imread(currentPath)
+        measurement = float(line[3])
+        images.append(image)
+        measurements.append(measurement)
+
+# get training data
+get_training_data_label_pairs('behaviorCloningSampleData')
+get_training_data_label_pairs('myTrainingData')
+get_training_data_label_pairs('trainingData2Lap')
+get_training_data_label_pairs('trainingDataClockWise')
+get_training_data_label_pairs('toughTrackTrainingData')
+
 X_train = np.array(images)
 Y_train = np.array(measurements)
 
 # Build a basic network to see if evrything works
+input_shape = [160,320,3]
 model = Sequential()
-model.add(Flatten(input_shape=(160,320,3)))
+model.add(Lambda(lambda x: (x / 255.0) - 0.5, input_shape=input_shape))
+model.add(Cropping2D(cropping=((70,25), (0,0)), input_shape=input_shape))
+model.add(Conv2D(filters=6, kernel_size=(3, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.30))
+model.add(Conv2D(filters=16, kernel_size=(3, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.30))
+model.add(Flatten())
+model.add(Dense(120))
+model.add(Dropout(0.30))
+model.add(Dense(84))
 model.add(Dense(1))
 
 model.compile(loss='mse', optimizer = 'adam')
-model.fit(X_train, Y_train, validation_split = 0.2, shuffle = True, nb_epoch = 7)
+model.fit(X_train, Y_train, validation_split = 0.2, shuffle = True, nb_epoch = 3)
 
 model.save('model.h5')
 
