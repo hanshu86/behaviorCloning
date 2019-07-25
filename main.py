@@ -13,6 +13,10 @@ measurements = []
 # myTrainingData is uploaded from my local machine
 # so need to change the path
 def get_training_data_label_pairs(directory):
+    doFlip = False
+    if directory == "trainingDataRecovery":
+        print("Doing flip for: ", directory)
+        doFlip = False
     lines = []
     log_file_path = directory + '/driving_log.csv'
     with open(log_file_path) as csvfile:
@@ -30,6 +34,12 @@ def get_training_data_label_pairs(directory):
         measurement = float(line[3])
         images.append(image)
         measurements.append(measurement)
+        if doFlip == True:
+            flipped_image = np.fliplr(image)
+            measurement = -1 * measurement
+            images.append(image)
+            measurements.append(measurement)
+            
 
 # get training data
 get_training_data_label_pairs('behaviorCloningSampleData')
@@ -37,6 +47,8 @@ get_training_data_label_pairs('myTrainingData')
 get_training_data_label_pairs('trainingData2Lap')
 get_training_data_label_pairs('trainingDataClockWise')
 get_training_data_label_pairs('toughTrackTrainingData')
+get_training_data_label_pairs('trainingDataRecovery')
+get_training_data_label_pairs('trainingDataRecovery')
 
 X_train = np.array(images)
 Y_train = np.array(measurements)
@@ -59,7 +71,7 @@ model.add(Dense(84))
 model.add(Dense(1))
 
 model.compile(loss='mse', optimizer = 'adam')
-model.fit(X_train, Y_train, validation_split = 0.2, shuffle = True, nb_epoch = 3)
+model.fit(X_train, Y_train, validation_split = 0.2, shuffle = True, nb_epoch = 5)
 
 model.save('model.h5')
 
