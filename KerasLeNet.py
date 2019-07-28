@@ -51,13 +51,18 @@ get_training_data_label_pairs('toughTrackTrainingData')
 get_training_data_label_pairs('trainingDataRecovery')
 get_training_data_label_pairs('trainingDataRecovery')
 
-len(images)
-len(measurements)
-hist = np.histogram(measurements)
-plt.plot(hist)
-plt.show()
+print(len(images))
+print(len(measurements))
+rangemax = print(max(measurements))
+rangemin = print(min(measurements))
 X_train = np.array(images)
 Y_train = np.array(measurements)
+
+width = 0.1
+angels = np.arange(-1, 1, width)
+#hist = np.histogram(Y_train, bins=angels)
+plt.hist(Y_train, bins=angels)
+plt.show()
 
 # Build a basic network to see if evrything works
 # Disable it as we are trying to get data stats
