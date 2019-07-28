@@ -16,6 +16,7 @@ def get_training_data_label_pairs(directory):
     doFlip = False
     if directory == "trainingDataRecovery":
         print("Doing flip for: ", directory)
+        # Lets not flip image as it is not improving the model for some reason
         doFlip = False
     lines = []
     log_file_path = directory + '/driving_log.csv'
@@ -48,13 +49,11 @@ get_training_data_label_pairs('trainingData2Lap')
 get_training_data_label_pairs('trainingDataClockWise')
 get_training_data_label_pairs('toughTrackTrainingData')
 get_training_data_label_pairs('trainingDataRecovery')
+# Use it again as this data is proving to be critical
 get_training_data_label_pairs('trainingDataRecovery')
 
 X_train = np.array(images)
 Y_train = np.array(measurements)
-
-# np.save('xtrain.npy', X_train)
-# np.save('ytrain.npy', Y_train)
 
 # Build a Nvidia Network
 input_shape = [160,320,3]
@@ -77,9 +76,10 @@ model.add(Dense(10))
 model.add(Activation('relu'))
 model.add(Dense(1))
 
-
+# Use default learning rate of 0.001 for adam optimizer
 model.compile(loss='mse', optimizer = 'adam')
+# Use default batch size of 32. Use 2 ecpochs
 model.fit(X_train, Y_train, validation_split = 0.2, shuffle = True, epochs = 2)
-
+# save the model
 model.save('model.h5')
 

@@ -6,6 +6,7 @@ from keras.layers import Flatten, Dense
 from keras.layers import Lambda
 from keras.layers import Conv2D, Dropout, Cropping2D
 from keras.layers.pooling import MaxPooling2D
+import matplotlib.pyplot as plt 
 
 images = []
 measurements = []
@@ -50,28 +51,34 @@ get_training_data_label_pairs('toughTrackTrainingData')
 get_training_data_label_pairs('trainingDataRecovery')
 get_training_data_label_pairs('trainingDataRecovery')
 
+len(images)
+len(measurements)
+hist = np.histogram(measurements)
+plt.plot(hist)
+plt.show()
 X_train = np.array(images)
 Y_train = np.array(measurements)
 
 # Build a basic network to see if evrything works
-input_shape = [160,320,3]
-model = Sequential()
-model.add(Lambda(lambda x: (x / 255.0) - 0.5, input_shape=input_shape))
-model.add(Cropping2D(cropping=((70,25), (0,0)), input_shape=input_shape))
-model.add(Conv2D(filters=6, kernel_size=(3, 3), activation='relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.30))
-model.add(Conv2D(filters=16, kernel_size=(3, 3), activation='relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.30))
-model.add(Flatten())
-model.add(Dense(120))
-model.add(Dropout(0.30))
-model.add(Dense(84))
-model.add(Dense(1))
+# Disable it as we are trying to get data stats
+# input_shape = [160,320,3]
+# model = Sequential()
+# model.add(Lambda(lambda x: (x / 255.0) - 0.5, input_shape=input_shape))
+# model.add(Cropping2D(cropping=((70,25), (0,0)), input_shape=input_shape))
+# model.add(Conv2D(filters=6, kernel_size=(3, 3), activation='relu'))
+# model.add(MaxPooling2D(pool_size=(2, 2)))
+# model.add(Dropout(0.30))
+# model.add(Conv2D(filters=16, kernel_size=(3, 3), activation='relu'))
+# model.add(MaxPooling2D(pool_size=(2, 2)))
+# model.add(Dropout(0.30))
+# model.add(Flatten())
+# model.add(Dense(120))
+# model.add(Dropout(0.30))
+# model.add(Dense(84))
+# model.add(Dense(1))
 
-model.compile(loss='mse', optimizer = 'adam')
-model.fit(X_train, Y_train, validation_split = 0.2, shuffle = True, nb_epoch = 5)
+# model.compile(loss='mse', optimizer = 'adam')
+# model.fit(X_train, Y_train, validation_split = 0.2, shuffle = True, nb_epoch = 5)
 
-model.save('model.h5')
+# model.save('model.h5')
 
